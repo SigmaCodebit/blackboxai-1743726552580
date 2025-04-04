@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Machine OEE Dashboard</title>
+    <link rel="icon" href="data:,">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .gauge { width: 100%; height: 20px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+        .gauge-fill { height: 100%; transition: width 0.5s ease; }
+        .dark .gauge { background: #4a5568; }
+        .status-indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .machine-card { transition: all 0.3s ease; }
+        .machine-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                    <i class="fas fa-industry mr-2"></i>Multi-Machine OEE Dashboard
+                </h1>
+                <div class="mt-2 text-sm">
+                    <span id="connection-status" class="status-indicator bg-gray-400"></span>
+                    <span id="connection-text">Connecting to MQTT...</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="./config.html" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm">
+                    <i class="fas fa-cog mr-1"></i>Configure Machines
+                </a>
+                <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:inline"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Rest of the dashboard content remains the same -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                <i class="fas fa-server mr-2 text-blue-500"></i>Select Machine
+            </h2>
+            <div class="flex flex-wrap gap-4" id="machineList">
+                <!-- Machines will be loaded here -->
+            </div>
+        </div>
+
+        <div id="dashboardContent" class="hidden">
+            <!-- OEE Metrics will be loaded here -->
+        </div>
+    </div>
+
+    <script src="multi-machine.js"></script>
+</body>
+</html>
