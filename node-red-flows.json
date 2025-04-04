@@ -1,0 +1,102 @@
+[
+    {
+        "id": "a1b2c3d4",
+        "type": "tab",
+        "label": "OEE Calculation",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "machine-data-simulator",
+        "type": "inject",
+        "z": "a1b2c3d4",
+        "name": "Simulate Machine Data",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "machine/data",
+        "payload": "{\"runTime\": 420, \"idealOutput\": 500, \"totalProducts\": 450, \"goodProducts\": 430}",
+        "payloadType": "json",
+        "x": 200,
+        "y": 100,
+        "wires": [
+            ["oee-calculator", "mqtt-publisher-raw"]
+        ]
+    },
+    {
+        "id": "oee-calculator",
+        "type": "function",
+        "z": "a1b2c3d4",
+        "name": "Calculate OEE",
+        "func": "// Calculate OEE components\nconst availability = (msg.payload.runTime / 480) * 100; // 480 = total possible minutes\nconst performance = (msg.payload.totalProducts / msg.payload.idealOutput) * 100;\nconst quality = (msg.payload.goodProducts / msg.payload.totalProducts) * 100;\nconst oee = (availability * performance * quality) / 10000;\n\n// Create result message\nmsg.payload = {\n    availability: availability.toFixed(2),\n    performance: performance.toFixed(2),\n    quality: quality.toFixed(2),\n    oee: oee.toFixed(2),\n    timestamp: new Date().toISOString()\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 100,
+        "wires": [
+            ["mqtt-publisher-results"]
+        ]
+    },
+    {
+        "id": "mqtt-publisher-raw",
+        "type": "mqtt out",
+        "z": "a1b2c3d4",
+        "name": "Publish Raw Data",
+        "topic": "oee/raw",
+        "qos": "1",
+        "retain": "false",
+        "broker": "mqtt-broker",
+        "x": 450,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "mqtt-publisher-results",
+        "type": "mqtt out",
+        "z": "a1b2c3d4",
+        "name": "Publish OEE Results",
+        "topic": "oee/results",
+        "qos": "1",
+        "retain": "false",
+        "broker": "mqtt-broker",
+        "x": 700,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "mqtt-broker",
+        "type": "mqtt-broker",
+        "name": "Local MQTT Broker",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    }
+]
