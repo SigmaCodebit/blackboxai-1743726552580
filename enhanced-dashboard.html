@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced OEE Dashboard</title>
+    <link rel="icon" href="data:,">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .gauge { width: 100%; height: 20px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+        .gauge-fill { height: 100%; transition: width 0.5s ease; }
+        .dark .gauge { background: #4a5568; }
+        .status-indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                    <i class="fas fa-industry mr-2"></i>OEE Monitoring Dashboard
+                </h1>
+                <div class="mt-2 text-sm">
+                    <span id="connection-status" class="status-indicator bg-gray-400"></span>
+                    <span id="connection-text">Connecting to MQTT...</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="refreshBtn" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:inline"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- OEE Card -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                    <i class="fas fa-tachometer-alt mr-2 text-blue-500"></i>Overall OEE
+                </h2>
+                <div class="text-5xl font-bold text-center my-6" id="oee-value">0%</div>
+                <div class="gauge">
+                    <div class="gauge-fill bg-green-500" id="oee-gauge"></div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                    Last updated: <span id="oee-timestamp">-</span>
+                </div>
+            </div>
+
+            <!-- Other metric cards would go here -->
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                    <i class="fas fa-chart-line mr-2 text-blue-500"></i>OEE Trend
+                </h2>
+                <canvas id="oeeTrendChart" height="200"></canvas>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                    <i class="fas fa-chart-pie mr-2 text-blue-500"></i>OEE Components
+                </h2>
+                <canvas id="oeeComponentsChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">
+                    <i class="fas fa-database mr-2 text-blue-500"></i>Latest Data
+                </h2>
+                <button id="exportBtn" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
+                    <i class="fas fa-download mr-1"></i>Export
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white dark:bg-gray-700">
+                    <thead>
+                        <tr class="bg-gray-100 dark:bg-gray-600">
+                            <th class="py-2 px-4 text-left">Timestamp</th>
+                            <th class="py-2 px-4 text-left">OEE</th>
+                            <th class="py-2 px-4 text-left">Availability</th>
+                            <th class="py-2 px-4 text-left">Performance</th>
+                            <th class="py-2 px-4 text-left">Quality</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
